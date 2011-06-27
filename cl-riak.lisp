@@ -11,6 +11,15 @@
       (let ((vclock (cdr (assoc :x-riak-vclock headers))))
 	(when (= status 200) (values response vclock))))))
 
+(defun delete (key &key bucket (server "localhost:8098"))
+  (let ((request-url (concatenate 'string "http://" server "/riak/" bucket "/" key)))
+    (multiple-value-bind (response status headers)
+	(drakma:http-request request-url
+			     :method :delete)
+      (cond ((or (= status 204) 
+		 (= status 404)) t)
+	    (t nil)))))
+
 (defun set (key value &key bucket (server "localhost:8098") (content-type "text/plain") vclock)
   (let ((request-url (concatenate 'string "http://" server "/riak/" bucket "/" key)))
     (multiple-value-bind (response status headers)

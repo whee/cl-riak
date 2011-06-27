@@ -2,5 +2,5 @@
 
 (defpackage #:cl-riak
   (:use #:cl)
-  (:shadow #:get #:set)
-  (:export #:get #:set))
+  (:shadow #:get #:set #:delete)
+  (:export #:get #:set #:delete))
