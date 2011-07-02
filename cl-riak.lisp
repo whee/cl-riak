@@ -3,6 +3,7 @@
 (in-package #:cl-riak)
 
 ;;; "cl-riak" goes here. Hacks and glory await!
+(setf drakma:*text-content-types* '(("text" . nil) ("application" . "json")))
 
 (defun get (key &key bucket (server "localhost:8098"))
   (let ((request-url (concatenate 'string "http://" server "/riak/" bucket "/" key)))
@@ -10,6 +11,15 @@
 	(drakma:http-request request-url)
       (let ((vclock (cdr (assoc :x-riak-vclock headers))))
 	(when (= status 200) (values response vclock))))))
+
+(defun mapred (mapreduce &key (server "localhost:8098"))
+  (let ((request-url (concatenate 'string "http://" server "/mapred")))
+    (multiple-value-bind (response status headers)
+	(drakma:http-request request-url
+			     :method :post
+			     :content-type "application/json"
+			     :content mapreduce)
+      (when (= status 200) response))))
 
 (defun delete (key &key bucket (server "localhost:8098"))
   (let ((request-url (concatenate 'string "http://" server "/riak/" bucket "/" key)))
