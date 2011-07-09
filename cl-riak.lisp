@@ -6,7 +6,7 @@
 (setf drakma:*text-content-types* '(("text" . nil) ("application" . "json")))
 
 (defun get (key &key bucket (server "localhost:8098"))
-  (let ((request-url (concatenate 'string "http://" server "/riak/" bucket "/" key)))
+  (let ((request-url (concatenate 'string "http://" server "/riak/" (url-encode bucket :utf-8) "/" (url-encode key :utf-8))))
     (multiple-value-bind (response status headers)
 	(drakma:http-request request-url)
       (let ((vclock (cdr (assoc :x-riak-vclock headers))))
@@ -22,7 +22,7 @@
       (when (= status 200) response))))
 
 (defun delete (key &key bucket (server "localhost:8098"))
-  (let ((request-url (concatenate 'string "http://" server "/riak/" bucket "/" key)))
+  (let ((request-url (concatenate 'string "http://" server "/riak/" (url-encode bucket :utf-8) "/" (url-encode key :utf-8))))
     (multiple-value-bind (response status headers)
 	(drakma:http-request request-url
 			     :method :delete)
@@ -31,15 +31,18 @@
 	    (t nil)))))
 
 (defun set (key value &key bucket (server "localhost:8098") (content-type "text/plain") vclock)
-  (let ((request-url (concatenate 'string "http://" server "/riak/" bucket "/" key)))
+  (let ((request-url (concatenate 'string "http://" server "/riak/" (url-encode bucket :utf-8) 
+				  (when key (concatenate 'string "/" (url-encode key :utf-8))))))
     (multiple-value-bind (response status headers)
 	(drakma:http-request request-url
-			     :method :put
+			     :method (if key :put :post)
 			     :content-type content-type
 			     :content value
 			     :parameters '(("returnbody" . "true"))
 			     :additional-headers (when vclock '(("X-Riak-Vclock" . vclock))))
-      (let ((vclock (cdr (assoc :x-riak-vclock headers))))
-	(cond ((= status 200) (values response vclock))
+      (let ((vclock (cdr (assoc :x-riak-vclock headers)))
+	    (location (cdr (assoc :location headers))))
+	(cond ((= status 200) (values response vclock)) ; key = value
+	      ((= status 201) location)
 	      ((= status 204) t) ; "No Content". Used when returnbody is false
 	      (t nil))))))
