@@ -3,7 +3,8 @@
 (asdf:defsystem #:cl-riak
   :serial t
   :depends-on (#:drakma
-               #:alexandria)
+               #:alexandria
+	       #:split-sequence)
   :components ((:file "package")
                (:file "cl-riak")))
 

@@ -40,9 +40,10 @@
 			     :content value
 			     :parameters '(("returnbody" . "true"))
 			     :additional-headers (when vclock '(("X-Riak-Vclock" . vclock))))
-      (let ((vclock (cdr (assoc :x-riak-vclock headers)))
-	    (location (cdr (assoc :location headers))))
+      (let* ((vclock (cdr (assoc :x-riak-vclock headers)))
+	     (location (cdr (assoc :location headers)))
+	     (key-name (lastcar (split-sequence #\/ location))))
 	(cond ((= status 200) (values response vclock)) ; key = value
-	      ((= status 201) location)
+	      ((= status 201) (values key-name bucket)) ; key is nil; return the key name and the bucket
 	      ((= status 204) t) ; "No Content". Used when returnbody is false
 	      (t nil))))))
