@@ -1,4 +1,5 @@
 ;;;; cl-riak.lisp
+;;;; Copyright (c) 2011, Brian Hetro <whee@smaertness.net>
 
 (in-package #:cl-riak)
 
