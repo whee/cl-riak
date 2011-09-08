@@ -23,13 +23,13 @@ An example:
     (define-constant +mapred-reminders+ "{
         \"inputs\":\"reminder\",
         \"query\":[
-    	{
-    	    \"map\":{
-    		\"language\":\"javascript\",
-    		\"source\":\"function (v, k, a) {var data = Riak.mapValuesJson(v)[0]; if (data.username == '~a') {return [{'key':v.key, 'value':v.values[0].data}];} else {return [];}}\",
-    		\"keep\":true
-    	    }
-    	}
+        {
+            \"map\":{
+            \"language\":\"javascript\",
+            \"source\":\"function (v, k, a) {var data = Riak.mapValuesJson(v)[0]; if (data.username == '~a') {return [{'key':v.key, 'value':v.values[0].data}];} else {return [];}}\",
+            \"keep\":true
+            }
+        }
         ]
     }" :test 'string=)
 
